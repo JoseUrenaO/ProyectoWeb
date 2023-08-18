@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{layout/plantilla :: head}">
+        <link rel="stylesheet" href="style.css" type="text/css" />
+
+        <title>Practica01</title>
+    </head>
+
+    <body>
+
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary btn-block" data-bs-toggle="modal"
+                                data-bs-target="#agregarReporte">
+                            <i class="fas fa-plus"></i> [[#{Reporte.agregar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section th:fragment="agregarReporte">
+            <div id="agregarReporte" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title">[[#{Reporte.agregar}]]</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form th:action="@{/reporte/guardar}" th:object="${reporte}" method="POST" class="was-validated"
+                              enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="numeroRamas">[[#{Reporte.numero}]]</label>
+                                    <input type="number" class="form-control" name="numeroRamas" required="true" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tipoFlor">[[#{Reporte.tipo}]]</label>
+                                    <input type="text" class="form-control" name="tipoFlor" required="true" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="anosVida">[[#{Reporte.vida}]]</label>
+                                    <input type="number" class="form-control" name="anosVida" required="true" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="imagen">[[#{Reporte.rutaImagen}]]</label>
+                                    <input class="form-control" type="file" name="imagenFile" onchange="readURL(this);" />
+                                    <img id="blah" src="#" alt="your image" height="200" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" type="submit">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:fragment="listadoReportees" id="reporte">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{Reporte.listado}]]</h4>
+                            </div>
+                            <div th:if="${lista != null and !lista.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>#</th>
+
+                                            <th>[[#{Reporte.numero}]]</th>
+                                            <th>[[#{Reporte.tipo}]]</th>
+                                            <th>[[#{Reporte.vida}]]</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="reporte, contador : ${lista}">
+                                            <td>[[${contador.count}]]</td>
+
+                                            <td>[[${reporte.numeroRamas}]]</td>
+                                            <td>[[${reporte.tipoFlor}]]</td>
+                                            <td>[[${reporte.anosVida}]]</td>
+
+                                            <td>
+                                                <a th:href="@{/reporte/eliminar/}+${reporte.idReporte}" class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                                                </a>
+                                                <a th:href="@{/reporte/modificar/}+${reporte.idReporte}" class="btn btn-success">
+                                                    <i class="fas fa-pencil"></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${lista == null or lista.empty}">
+                                <span>[[#{Reporte.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-success text-white mb-3">
+                            <div class="card-body">
+                                <h3>[[#{Reporte.total}]]</h3>
+                                <h4 class="fs-2"><i class="fas fa-users"></i> [[${totalReportees}]]</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:fragment="editarReporte">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <form method="POST" th:action="@{/reporte/guardar}" th:object="${reporte}" class="was-validated"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="idReporte" th:field="*{idReporte}" />
+                        <input type="hidden" name="imagen" th:field="*{imagen}" />
+                        <section th:replace="~{reporte/fragmentos :: botonesEditar}" />
+                        <div id=details>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4>[[#{accion.actualizar}]]</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="numero ramas">[[#{Reporte.numero}]]</label>
+                                                    <input type="text" class="form-control" name="numero ramas"
+                                                           th:field="*{numeroRamas}" required="true">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="tipo flor">[[#{Reporte.tipo}]]</label>
+                                                    <input type="text" class="form-control" name="tipo flor"
+                                                           th:field="*{tipoFlor}" required="true">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="annos vida">[[#{Reporte.vida}]]</label>
+                                                    <input type="text" class="form-control" name="annos vida"
+                                                           th:field="*{anosVida}" required="true">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="imagen">[[#{Reporte.rutaImagen}]]</label>
+                                                    <input class="form-control" type="file" name="imagenFile"
+                                                           onchange="readURL(this);" />
+                                                    <img id="blah" th:src="@{${reporte.imagen}}" alt="your image"
+                                                         height="200" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5 Fragmento que se utiliza en el fragmento anterior -->
+        <section th:fragment="botonesEditar">
+            <div class="container py-4 mb-4 bg-light">
+                <div class="row">
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/reporte/listado}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/reporte/eliminar/}+${reporte.idReporte}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+
+</html>
